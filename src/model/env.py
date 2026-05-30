@@ -129,6 +129,7 @@ class PoolEnv:
 
         # Reward
         self.ball_in_reward = 5
+        self.hit_reward = 0.5       # small reward for hitting the target ball
         self.no_collision_penalty = -1
 
         # Init
@@ -165,5 +166,6 @@ class PoolEnv:
 
         self.current_obs = ball_pos
         self.current_state = self.state_space.get_state(ball_pos)
-        reward = self.ball_in_reward * holes_in + (0 if collision_count > 0 else self.no_collision_penalty)
+        hit_bonus = self.hit_reward if collision_count > 0 else self.no_collision_penalty
+        reward = self.ball_in_reward * holes_in + hit_bonus
         return self.current_state, reward, done
