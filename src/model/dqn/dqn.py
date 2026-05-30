@@ -1,5 +1,8 @@
 import math
+import os
 import torch
+import pickle
+import numpy as np
 
 from . import dqn_agent
 
@@ -40,23 +43,23 @@ def choose_action(state, model, action_space, epsilon=0.):
     print(f'action was {action}')
     return action
 
-
-def log_episode(i_episode, timesteps, rewards):
-    msg = f'Episode {i_episode} finished after {timesteps} timesteps, total rewards {rewards}'
-    print(msg)
-    with open(LOG_PATH, "a") as f:
-        f.write(msg + '\n')
-
-
-def train(env, model_path, episodes=EPISODES, episode_length=EPISODE_LENGTH):
+def train(env, model_path, episodes=200, episode_length=50):
     print('DQN training')
 
-    env.set_buckets(action=ACTION_BUCKETS)
-    action_size = ACTION_BUCKETS[0] * ACTION_BUCKETS[1]
-    agent = dqn_agent.Agent(env.state_space.n, action_size, seed=SEED)
+    # Initialize DQN Agent
+    state_size = env.state_space.n
+    action_buckets = [360, 1]
+    env.set_buckets(action=action_buckets)
+    action_size = action_buckets[0] * action_buckets[1]
 
-    best_reward = float('-inf')
+    agent = dqn_agent.Agent(state_size, action_size, seed = 229)
 
+    # Learning related constants; factors should be determined by trial-and-error
+    get_epsilon = lambda i: max(0.01, min(1, 1.0 - math.log10((i+1)/25))) # epsilon-greedy, factor to explore randomly; discounted over time
+    get_lr = lambda i: max(0.01, min(0.5, 1.0 - math.log10((i+1)/25))) # learning rate; discounted over time
+    gamma = 0.8 # reward discount factor
+
+    # Q-learning
     for i_episode in range(episodes):
         epsilon = get_epsilon(i_episode)
         state = env.reset()
@@ -71,17 +74,15 @@ def train(env, model_path, episodes=EPISODES, episode_length=EPISODE_LENGTH):
             state = next_state
 
             if done:
-                log_episode(i_episode, t + 1, rewards)
+                print('Episode {} finished after {} timesteps, total rewards {}'.format(i_episode, t+1, rewards))
+                with open("output\\dqn-log.txt", "a") as myfile:
+                    myfile.write('Episode {} finished after {} timesteps, total rewards {}\n'.format(i_episode, t+1, rewards))
                 break
 
         if not done:
-            log_episode(i_episode, episode_length, rewards)
+            print('Episode {} finished after {} timesteps, total rewards {}'.format(i_episode, episode_length, rewards))
+            with open("output\\dqn-log.txt", "a") as myfile:
+                myfile.write('Episode {} finished after {} timesteps, total rewards {}\n'.format(i_episode, episode_length, rewards))
 
-        # Save on best reward or every SAVE_EVERY episodes
-        if rewards > best_reward:
-            best_reward = rewards
-            save_model(model_path, agent)
-            print(f'  -> New best reward {best_reward:.2f}, model saved.')
-        elif (i_episode + 1) % SAVE_EVERY == 0:
-            save_model(model_path, agent)
-            print(f'  -> Checkpoint at episode {i_episode + 1}, model saved.')
+        save_model(model_path, agent)
+        #print(agent.qnetwork_local.state_dict())

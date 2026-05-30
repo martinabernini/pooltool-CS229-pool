@@ -1,9 +1,7 @@
 import numpy as np
 
 from . import utils
-from ..game import gamestate
-from ..game import collisions
-from ..game import event
+from ..game.pooltool_sim import PooltoolGameState
 
 class ActionSpace:
     def __init__(self, ranges):
@@ -154,7 +152,7 @@ class PoolEnv:
             self.state_space.set_buckets(state)
 
     def reset(self):
-        self.gamestate = gamestate.GameState(self.num_balls, self.visualize)
+        self.gamestate = PooltoolGameState(self.num_balls, self.visualize)
         self.current_obs = self.gamestate.return_ball_state()
         self.current_state = self.state_space.get_state(self.current_obs)
         return self.current_state

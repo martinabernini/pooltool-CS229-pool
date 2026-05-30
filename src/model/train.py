@@ -8,8 +8,8 @@ from .a3c import a3c
 from .a3c_discrete import a3c_discrete
 
 
-EPISODES = 1000
-EPISODE_LENGTH = 25
+EPISODES = 3000
+EPISODE_LENGTH = 50
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='RL training.')
