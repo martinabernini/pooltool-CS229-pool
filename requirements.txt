@@ -1,5 +1,4 @@
 numpy
-pygame
-zope.event
+pooltool
 torch
 torchvision
