@@ -1,4 +1,5 @@
 import math
+import os
 import pickle
 import numpy as np
 
@@ -33,12 +34,13 @@ def choose_action(state, model, action_space, epsilon = 0.):
     print('action was ' + str(action))
     return action
 
-def train(env, model_path, episodes=200, episode_length=50):
+def train(env, model_path, episodes=1000, episode_length=50):
     print('DQN training')
 
     # Initialize DQN Agent
     state_size = env.state_space.n
-    action_buckets = [360, 1]
+    # 36 angles (10° steps) × 10 velocity levels → 360 total discrete actions
+    action_buckets = [36, 10]
     env.set_buckets(action=action_buckets)
     action_size = action_buckets[0] * action_buckets[1]
 
@@ -82,12 +84,12 @@ def train(env, model_path, episodes=200, episode_length=50):
 
             if done:
                 print('Episode {} finished after {} timesteps, total rewards {}'.format(i_episode, t+1, rewards))
-                with open("output\\dqn-log.txt", "a") as myfile:
+                with open(os.path.join("output", "dqn-log.txt"), "a") as myfile:
                     myfile.write('Episode {} finished after {} timesteps, total rewards {}\n'.format(i_episode, t+1, rewards))
                 break
         if not done:
             print('Episode {} finished after {} timesteps, total rewards {}'.format(i_episode, episode_length, rewards))
-            with open("output\\dqn-log.txt", "a") as myfile:
+            with open(os.path.join("output", "dqn-log.txt"), "a") as myfile:
                 myfile.write('Episode {} finished after {} timesteps, total rewards {}\n'.format(i_episode, episode_length, rewards))
 
         save_model(model_path, agent)
