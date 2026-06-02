@@ -9,11 +9,8 @@ from . import config
 
 was_closed = False
 while not was_closed:
-    game = gamestate.GameState()
+    game = gamestate.GameState(ball_num=9, visualize=True)
     #button_pressed = graphics.draw_main_menu(game)
-
-    #if button_pressed == config.play_game_button: - don't want to wait for button to be pressed
-    game.start_pool()
     events = event.events()
     while not (events["closed"] or game.is_game_over or events["quit_to_main_menu"]):
         events = event.events()

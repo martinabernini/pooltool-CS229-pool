@@ -1,7 +1,7 @@
 import numpy as np
 
 from . import utils
-from ..game.pooltool_sim import PooltoolGameState
+from ..game.gamestate import GameState
 
 class ActionSpace:
     def __init__(self, ranges):
@@ -128,7 +128,7 @@ class PoolEnv:
         # Reward
         self.ball_in_reward = 5
         self.hit_reward = 0.5       # small reward for hitting the target ball
-        self.no_collision_penalty = -1
+        self.no_collision_penalty = -0.1  # small penalty to avoid drowning out positive signal
 
         # Init
         self.current_obs = None
@@ -152,7 +152,10 @@ class PoolEnv:
             self.state_space.set_buckets(state)
 
     def reset(self):
-        self.gamestate = PooltoolGameState(self.num_balls, self.visualize)
+        if self.gamestate is None:
+            self.gamestate = GameState(self.num_balls, self.visualize)
+        else:
+            self.gamestate.start_pool(self.num_balls)
         self.current_obs = self.gamestate.return_ball_state()
         self.current_state = self.state_space.get_state(self.current_obs)
         return self.current_state

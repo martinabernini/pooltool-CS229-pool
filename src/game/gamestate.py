@@ -33,10 +33,14 @@ class GameState:
     def __init__(self, ball_num, visualize=False):
         self.visualize = visualize
         pygame.init()
-        pygame.display.set_caption(config.window_caption)
+        if visualize:
+            pygame.display.set_caption(config.window_caption)
+            self.canvas = graphics.Canvas()
+        else:
+            pygame.display.set_mode((1, 1), pygame.NOFRAME)
+            self.canvas = None
         event.set_allowed_events()
         zope.event.subscribers.append(self.game_event_handler)
-        self.canvas = graphics.Canvas()
         self.ball_num = ball_num
         self.collision_count = 0
         self.fps_clock = pygame.time.Clock()
@@ -207,7 +211,8 @@ class GameState:
             config.resolution, config.table_side_color, table_side_points)
         self.all_sprites.add(self.table_coloring)
         self.all_sprites.add(self.holes)
-        graphics.add_separation_line(self.canvas)
+        if self.visualize:
+            graphics.add_separation_line(self.canvas)
 
     def game_over(self, p1_won):
         font = config.get_default_font(config.game_over_label_font_size)
@@ -349,17 +354,17 @@ class GameState:
     def step(self, game, angle, force):
         self.collision_count = 0
         original_pos = self.return_ball_state()
-        ang_in_max = 0
-        ang_in_min = 1
+        ang_in_min = 0
+        ang_in_max = 1
 
         ang_out_min = 0
-        ang_out_max = 6.28318530718
+        ang_out_max = 6.28318530718  # 2*pi
 
         ap = (angle - ang_in_min) / (ang_in_max - ang_in_min)
-        real_angle = ap * (ang_out_max - ang_out_min) + ang_out_min
+        real_angle = ap * (ang_out_max - ang_out_min) + ang_out_min + math.pi
 
-        force_in_max = 0
-        force_in_min = 1
+        force_in_min = 0
+        force_in_max = 1
 
         force_out_min = 0
         force_out_max = 100

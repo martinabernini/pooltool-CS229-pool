@@ -45,7 +45,7 @@ if __name__ == '__main__':
 
     if single_env:
         env = PoolEnv(args.balls, visualize=args.visualize)
-        algo(env, args.output_model, episodes=EPISODES, episode_length=EPISODE_LENGTH)
+        algo(env, args.output_model)
     else:
         env_params = { 'num_balls': args.balls, 'visualize': args.visualize }
         algo(env_params, args.output_model, episodes=EPISODES, episode_length=EPISODE_LENGTH)
